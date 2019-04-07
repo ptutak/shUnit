@@ -44,13 +44,28 @@ log_status() {
 
 run() {
     local test_name="$1"
-    shift
-    local args=($@)
+    echo "$test_name - name"
     set_up_test "$test_name"
-    $test_name "${args[@]}"
+    echo "$test_name - 2name"
+    "$test_name"
     local status="$?"
+    echo "$test_name - 3name"
     was_run "$test_name"
     log_status "$test_name" "$status"
     tear_down_test "${test_name}"
     return "$status"
+}
+
+execute_suite() {
+    local suite_filename="$1"
+    local test_list
+    IFS=$'\n' test_list=($(grep -Po "test_\w+(?=\(\))" "$suite_filename"))
+    echo "$suite_filename"
+    echo "${test_list[@]}"
+    source "$suite_filename"
+    for test_name in "${test_list[@]}"; do
+        echo "$test_name"
+        run "$test_name" || return 1
+    done
+    return 0
 }

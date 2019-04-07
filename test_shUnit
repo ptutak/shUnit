@@ -71,6 +71,7 @@ test_execute_suite() {
     local suite_filename="bashUnit/test_test"
     execute_suite "$suite_filename"
     local test_list
+    local test_name
     IFS=$'\n' test_list=($(grep -Po "test_\w+(?=\(\))" "$suite_filename"))
     for test_name in "${test_list[@]}"; do
         local test_was_run="${test_name}_WAS_RUN"
@@ -79,6 +80,10 @@ test_execute_suite() {
         fi
     done
     return 0
+}
+
+test_main() {
+    :
 }
 
 run test_tear_down_test

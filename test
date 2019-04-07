@@ -9,15 +9,3 @@ another_method() {
     return 0
 }
 
-test_method() {
-    local command="$1"
-    echo "$command"
-    "$command"
-    echo "$command"
-}
-
-
-run_commands() {
-    test_method method
-}
-

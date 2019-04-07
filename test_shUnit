@@ -69,7 +69,8 @@ test_log_status() {
 }
 
 test_execute_suite() {
-    local suite_name="$1"
+    suite_name=test_shUnit
+    execute_suite test_shUnit
 
 }
 

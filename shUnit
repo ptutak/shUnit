@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ue
 
+export SH_UNIT_DIR="$PWD"
+
 set_up() {
     return 0
 }

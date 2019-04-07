@@ -41,14 +41,14 @@ log_status() {
 }
 
 run() {
-    local test_method="$1"
+    local test_name="$1"
     shift
     local args=($@)
-    set_up_test "$test_method"
-    $test_method "${args[@]}"
+    set_up_test "$test_name"
+    $test_name "${args[@]}"
     local status="$?"
-    log_status "$test_method" "$status"
-    was_run "$test_method"
-    tear_down_test "${test_method}"
+    was_run "$test_name"
+    log_status "$test_name" "$status"
+    tear_down_test "${test_name}"
     return "$status"
 }

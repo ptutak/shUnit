@@ -1,76 +1,92 @@
 #!/bin/bash
 
-#shellcheck source=shUnit
+#shellcheck source=/dev/null
 source "./shUnit"
-source "./test"
-
 
 set_up() {
     echo "#!/bin/bash
 test_1() {
-    return 0
+    :
 }
 
 test_2() {
-    return 0
+    :
 }
 
 test_3() {
-    return 0
+    :
 }" >./test_test
+    source ./test_test
+    FILENAME='./test_test'
+    SH_UNIT_FILENAME='./shUnit'
 }
 
-test_method() {
-    method
-    return 0
-}
-
-test_another_method() {
-    another_method
-    return 0
+tear_down() {
+    rm ./test_test
+    unset FILENAME
+    unset SH_UNIT_FILENAME
 }
 
 test_run() {
-    local test_name=test_method
+    local test_name=test_1
     local was_run_var="${test_name}_WAS_RUN"
-    run test_method
-    if ! "${!was_run_var}"; then
-        return 1
-    fi
-    return 0
+    (
+        set_up() {
+            :
+        }
+        tear_down() {
+            :
+        }
+        run "$test_name" >/dev/null
+        if ! "${!was_run_var}"; then
+            return 1
+        fi
+        return 0
+    )
 }
 
 test_set_up_test() {
-    local test_name=test_method
+    local test_name=test_1
     local set_up_var="${test_name}_WAS_SET_UP"
-    set_up_test "$test_name"
-    if ! "${!set_up_var}"; then
-        return 1
-    fi
-    return 0
+    (
+        set_up() {
+            :
+        }
+        set_up_test "$test_name"
+        if ! "${!set_up_var}"; then
+            return 1
+        fi
+        return 0
+    )
 }
 
 test_was_run() {
-    local test_name=test_method
+    local test_name=test_1
     local was_run_var="${test_name}_WAS_RUN"
-    if "${!was_run_var}"; then
-        return 1
-    fi
-    was_run "$test_name"
-    if ! "${!was_run_var}"; then
-        return 1
-    fi
-    return 0
+    (
+        if [[ -n "${!was_run_var}" ]]; then
+            return 1
+        fi
+        was_run "$test_name"
+        if ! "${!was_run_var}"; then
+            return 1
+        fi
+    )
 }
 
 test_tear_down_test() {
-    local test_name=test_method
+    local test_name=test_1
     local tear_down_var="${test_name}_WAS_TEAR_DOWN"
-    tear_down_test "$test_name"
-    if ! "${!tear_down_var}"; then
-        return 1
-    fi
-    return 0
+    (
+        tear_down() {
+            :
+        }
+        tear_down_test "$test_name"
+        if ! "${!tear_down_var}"; then
+            return 1
+        fi
+        return 0
+    )
 }
 
 test_log_status() {
@@ -99,21 +115,42 @@ check_ran_tests() {
 }
 
 test_execute_suite() {
-    local suite_filename="./test_test"
-    execute_suite "$suite_filename"
-    check_ran_tests "$suite_filename"
+    (
+        set_up() {
+            :
+        }
+        tear_down() {
+            :
+        }
+        execute_suite "$FILENAME" >/dev/null
+        check_ran_tests "$FILENAME"
+    )
 }
 
 test_execute_tests() {
-    local test_file="./test_test"
-    execute_tests "$test_file" "./shUnit"
-    check_ran_tests "$test_file"
+    echo "#!/bin/bash
+test_4() {
+    touch ./test_4
+}
+test_5() {
+    touch ./test_5
+}
+" >./test_45
+    execute_tests "./test_45" "$SH_UNIT_FILENAME" >/dev/null
+    rm ./test_45
+    if [[ -f ./test_4 && -f ./test_5 ]]; then
+        rm ./test_4
+        rm ./test_5
+    else
+        rm ./test_4 2>/dev/null
+        rm ./test_5 2>/dev/null
+        return 1
+    fi
 }
 
 test_find_testnames() {
-    local filename="./test_test"
     local testnames
-    testnames="$( find_testnames "$filename" )"
+    testnames="$( find_testnames "$FILENAME" )"
     local testnames_test="test_1
 test_2
 test_3"
@@ -123,13 +160,37 @@ test_3"
     return 0
 }
 
+test_main() {
+    echo "#!/bin/bash
+test_4() {
+    touch test_4
+}
+test_5() {
+    touch test_5
+}
+" >./test_45
+    main "./test_45" >/dev/null || return 1
+    rm ./test_45
+    if [[ -f ./test_4 && -f ./test_5 ]]; then
+        rm ./test_4
+        rm ./test_5
+    else
+        rm ./test_4 2>/dev/null
+        rm ./test_5 2>/dev/null
+        return 1
+    fi
+}
+
+test_script() {
+    :
+}
+
 run test_tear_down_test
-run test_another_method
 run test_set_up_test
 run test_was_run
 run test_run
-run test_method
 run test_log_status
 run test_execute_suite
 run test_execute_tests
 run test_find_testnames
+run test_main

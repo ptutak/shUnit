@@ -5,6 +5,21 @@ source "./shUnit"
 source "./test"
 
 
+set_up() {
+    echo "#!/bin/bash
+test_1() {
+    return 0
+}
+
+test_2() {
+    return 0
+}
+
+test_3() {
+    return 0
+}" >./test_test
+}
+
 test_method() {
     method
     return 0
@@ -73,7 +88,7 @@ check_ran_tests() {
     local test_filename="$1"
     local test_list
     local test_name
-    IFS=$'\n' read -r -d '' -a test_list <<<"$(grep -Po "test_\w+(?=\(\))" "$test_filename")"
+    IFS=$'\n' read -r -d '' -a test_list <<<"$( find_testnames "$test_filename" )"
     for test_name in "${test_list[@]}"; do
         local test_was_run="${test_name}_WAS_RUN"
         if ! "${!test_was_run}"; then
@@ -96,7 +111,16 @@ test_execute_tests() {
 }
 
 test_find_testnames() {
-    local 
+    local filename="./test_test"
+    local testnames
+    testnames="$( find_testnames "$filename" )"
+    local testnames_test="test_1
+test_2
+test_3"
+    if [[ "$testnames" != "$testnames_test" ]]; then
+        return 1
+    fi
+    return 0
 }
 
 run test_tear_down_test
@@ -108,3 +132,4 @@ run test_method
 run test_log_status
 run test_execute_suite
 run test_execute_tests
+run test_find_testnames

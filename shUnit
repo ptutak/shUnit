@@ -47,11 +47,16 @@ run() {
     return "$status"
 }
 
+find_testnames() {
+    local filename="$1"
+    grep -Po "test_\w+(?=\(\))" "$filename"
+}
+
 execute_suite() {
     local suite_filename="$1"
     local test_list
     local test_name
-    IFS=$'\n' read -r -d '' -a  test_list <<<"$(grep -Po "test_\w+(?=\(\))" "$suite_filename")"
+    IFS=$'\n' read -r -d '' -a  test_list <<<"$( find_testnames "$suite_filename" )"
     #shellcheck source=/dev/null
     source "$suite_filename"
     for test_name in "${test_list[@]}"; do

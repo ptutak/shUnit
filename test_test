@@ -1,5 +1,4 @@
 #!/bin/bash
-
 test_1() {
     return 0
 }

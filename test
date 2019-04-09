@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 method() {
     return 0
 }

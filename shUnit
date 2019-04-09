@@ -8,7 +8,6 @@ set_up() {
 was_run() {
     local test_name="$1"
     eval "${test_name}_WAS_RUN=true"
-    return 0
 }
 
 tear_down() {
@@ -20,14 +19,12 @@ set_up_test() {
     eval "${test_name}_WAS_RUN=false"
     set_up
     eval "${test_name}_WAS_SET_UP=true"
-    return 0
 }
 
 tear_down_test() {
     local test_name="$1"
     tear_down
     eval "${test_name}_WAS_TEAR_DOWN=true"
-    return 0
 }
 
 log_status() {
@@ -55,11 +52,19 @@ execute_suite() {
     local suite_filename="$1"
     local test_list
     local test_name
-    IFS=$'\n' test_list=($(grep -Po "test_\w+(?=\(\))" "$suite_filename"))
+    IFS=$'\n' read -r -d '' -a  test_list <<<"$(grep -Po "test_\w+(?=\(\))" "$suite_filename")"
+    #shellcheck source=/dev/null
     source "$suite_filename"
     for test_name in "${test_list[@]}"; do
         run "$test_name" || return 1
     done
-    return 0
+}
+
+execute_tests() {
+    local test_filename="$1"
+    local sh_unit_filename="$2"
+    #shellcheck source=/dev/null
+    source "$sh_unit_filename"
+    execute_suite "$test_filename"
 }
 

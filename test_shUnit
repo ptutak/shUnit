@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#shellcheck source=shUnit
 source "./shUnit"
 source "./test"
 export SH_UNIT_FILE="./shUnit"
@@ -68,12 +69,18 @@ test_log_status() {
     return 1
 }
 
+check_ran_tests() {
+    local test_filename="$1"
+    
+    local test_name
+}
+
 test_execute_suite() {
     local suite_filename="./test_test"
     execute_suite "$suite_filename"
     local test_list
     local test_name
-    IFS=$'\n' test_list=($(grep -Po "test_\w+(?=\(\))" "$suite_filename"))
+    read -ra test_list <<<"$(grep -Po "test_\w+(?=\(\))" "$suite_filename")"
     for test_name in "${test_list[@]}"; do
         local test_was_run="${test_name}_WAS_RUN"
         if ! "${!test_was_run}"; then

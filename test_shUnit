@@ -3,7 +3,7 @@
 #shellcheck source=shUnit
 source "./shUnit"
 source "./test"
-export SH_UNIT_FILE="./shUnit"
+
 
 test_method() {
     method
@@ -71,16 +71,9 @@ test_log_status() {
 
 check_ran_tests() {
     local test_filename="$1"
-    
-    local test_name
-}
-
-test_execute_suite() {
-    local suite_filename="./test_test"
-    execute_suite "$suite_filename"
     local test_list
     local test_name
-    read -ra test_list <<<"$(grep -Po "test_\w+(?=\(\))" "$suite_filename")"
+    IFS=$'\n' read -r -d '' -a test_list <<<"$(grep -Po "test_\w+(?=\(\))" "$test_filename")"
     for test_name in "${test_list[@]}"; do
         local test_was_run="${test_name}_WAS_RUN"
         if ! "${!test_was_run}"; then
@@ -90,9 +83,20 @@ test_execute_suite() {
     return 0
 }
 
+test_execute_suite() {
+    local suite_filename="./test_test"
+    execute_suite "$suite_filename"
+    check_ran_tests "$suite_filename"
+}
+
 test_execute_tests() {
     local test_file="./test_test"
-    execute_tests "$test_file" "$SH_UNIT_FILE"
+    execute_tests "$test_file" "./shUnit"
+    check_ran_tests "$test_file"
+}
+
+test_find_testnames() {
+    local 
 }
 
 run test_tear_down_test

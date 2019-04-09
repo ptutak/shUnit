@@ -1,5 +1,4 @@
 #!/bin/bash
-export SH_UNIT_DIR="$PWD"
 
 set_up() {
     return 0
@@ -63,8 +62,18 @@ execute_suite() {
 execute_tests() {
     local test_filename="$1"
     local sh_unit_filename="$2"
+    test_filename="$( cd "$( dirname "$test_filename" )" >/dev/null 2>&1 && pwd -P)/$( basename "$test_filename" )"
+    local sh_unit_filename
+    sh_unit_filename="$( cd "$( dirname "$sh_unit_filename" )"  >/dev/null 2>&1 && pwd -P)/$( basename "$sh_unit_filename" )"
     #shellcheck source=/dev/null
-    source "$sh_unit_filename"
-    execute_suite "$test_filename"
+    ( 
+        cd "$( dirname "$test_filename" )" || return 1
+        source "$sh_unit_filename"
+        execute_suite "$test_filename"
+        return "$?"
+    )
 }
+
+# TODO:
+#    Add get_full_file_path
 

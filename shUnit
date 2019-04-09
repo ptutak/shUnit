@@ -1,6 +1,4 @@
 #!/bin/bash
-set -ue
-
 export SH_UNIT_DIR="$PWD"
 
 set_up() {
@@ -28,7 +26,7 @@ set_up_test() {
 tear_down_test() {
     local test_name="$1"
     tear_down
-    eval "${test_name}_TEAR_DOWN=true"
+    eval "${test_name}_WAS_TEAR_DOWN=true"
     return 0
 }
 
